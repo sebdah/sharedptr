@@ -1,10 +1,8 @@
-#include <iostream>
 #include <stddef.h>
 
 template <class T>
 class SharedPtr {
   private:
-    bool debug;
     T* ptr;
 
     void common_init();
@@ -30,30 +28,25 @@ class SharedPtr {
     T* get();
     int get_use_count();
     void reset(T*);
-    void set_debug(bool);
     void set_use_count(int);
     bool unique();
 };
 
 template <class T>
 SharedPtr<T>::SharedPtr() {
-  set_debug(true);
   use_count = new int(-1);
   set_ptr(nullptr);
 }
 
 template <class T>
 SharedPtr<T>::SharedPtr(T* ptr) {
-  set_debug(true);
   use_count = new int(1);
   set_ptr(ptr);
 }
 
 template <class T>
 SharedPtr<T>::SharedPtr(SharedPtr<T>& shared_ptr) {
-  set_debug(true);
   use_count = new int(-1);
-  //use_count = shared_ptr.use_count;
   *this = shared_ptr;
 }
 
@@ -67,7 +60,6 @@ void SharedPtr<T>::operator=(SharedPtr<T>& shared_ptr) {
   set_ptr(shared_ptr.get());
   delete use_count;
   use_count = shared_ptr.use_count;
-  //set_use_count(get_use_count() + shared_ptr.get_use_count());
   set_use_count(get_use_count() + 1);
 }
 
@@ -128,23 +120,13 @@ T* SharedPtr<T>::operator->() {
 
 template <class T>
 void SharedPtr<T>::common_init() {
-  set_debug(true);
   set_ptr(nullptr);
   use_count = new int(0);
 }
 
 template <class T>
 void SharedPtr<T>::free() {
-  if (debug) {
-    std::cout << "Delete pointer " << ptr << "?" << std::endl;
-    std::cout << "Use count: " << get_use_count() << std::endl;
-  }
-
   if (get_use_count() == 1) {
-    if (debug) {
-      std::cout << "Deleting pointer " << ptr << std::endl;
-    }
-
     delete use_count;
     delete ptr;
   } else if (get_use_count() == -1) {
@@ -182,18 +164,7 @@ void SharedPtr<T>::reset(T* newPtr) {
 }
 
 template <class T>
-void SharedPtr<T>::set_debug(bool debug) {
-  this->debug = debug;
-}
-
-template <class T>
 void SharedPtr<T>::set_ptr(T* ptr) {
-  if (debug) {
-    if (ptr) {
-      std::cout << "Setting pointer to " << ptr << std::endl;
-    }
-  }
-
   this->ptr = ptr;
 }
 
