@@ -11,10 +11,17 @@ int main() {
   c1->a = 1;
   c1->b = 2;
 
+  // Constructors
   SharedPtr<C> a;
+  assert(!a);
   SharedPtr<C> b(nullptr);
+  assert(!b);
   SharedPtr<C> c(c1);
+  assert(c);
   SharedPtr<C> d(c);
+  assert(d);
+  SharedPtr<C> n(a);
+  assert(!n);
 
   // Test operator=
   SharedPtr<C> e;
