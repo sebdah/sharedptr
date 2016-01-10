@@ -30,22 +30,17 @@ int main() {
 
   // Test operator==
   assert(a == b);
-  assert(a == c != true);
+  assert(!(a == c));
 
   // Test operator<
-  assert(a < c.get());
   assert(a < c);
+  assert(!(c < a));
 
   // Test operator*
   assert(&(*c) == (c.get()));
 
   // Test operator->
   assert((c->a) = c.get()->a);
-
-  // Test operator bool
-  if (!c) {
-    assert(1 == 2);
-  }
 
   // Test reset
   C* c2 = new C;
@@ -56,10 +51,10 @@ int main() {
   c3->a = 3;
   c3->b = 4;
 
-  SharedPtr<C> reset(c2);
-  assert(reset.get()->a == c2->a);
-  reset.reset(c3);
-  assert(reset.get()->a == c3->a);
+  SharedPtr<C> r(c2);
+  assert(r.get() == c2);
+  r.reset(c3);
+  assert(r.get() == c3);
 
   // Test unique
   C* c4 = new C;

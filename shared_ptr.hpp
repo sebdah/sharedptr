@@ -5,12 +5,10 @@ class SharedPtr {
   private:
     T* ptr;
 
-    void common_init();
-    void free();
-    bool has_ptr();
     void set_ptr(T*);
   public:
     int* use_count;
+
     SharedPtr<T>();
     SharedPtr<T>(T*);
     SharedPtr<T>(SharedPtr&);
@@ -32,100 +30,30 @@ class SharedPtr {
     bool unique();
 };
 
+// Empty constructor
 template <class T>
 SharedPtr<T>::SharedPtr() {
   use_count = new int(-1);
   set_ptr(nullptr);
 }
 
+// Contructor for explicit pointer
 template <class T>
 SharedPtr<T>::SharedPtr(T* ptr) {
   use_count = new int(1);
   set_ptr(ptr);
 }
 
+// Constructor for SharedPtr
 template <class T>
 SharedPtr<T>::SharedPtr(SharedPtr<T>& shared_ptr) {
   use_count = new int(-1);
   *this = shared_ptr;
 }
 
+// Destructor, freeing up pointers and use count
 template <class T>
 SharedPtr<T>::~SharedPtr() {
-  free();
-}
-
-template <class T>
-void SharedPtr<T>::operator=(SharedPtr<T>& shared_ptr) {
-  set_ptr(shared_ptr.get());
-  delete use_count;
-  use_count = shared_ptr.use_count;
-  set_use_count(get_use_count() + 1);
-}
-
-template <class T>
-bool SharedPtr<T>::operator==(T* cmpPtr) {
-  if (ptr == cmpPtr) {
-    return true;
-  }
-
-  return false;
-}
-
-template <class T>
-bool SharedPtr<T>::operator==(SharedPtr<T>& shared_ptr) {
-  if (ptr == shared_ptr.get()) {
-    return true;
-  }
-
-  return false;
-}
-
-template <class T>
-bool SharedPtr<T>::operator<(T* cmpPtr) {
-  if (ptr < cmpPtr) {
-    return true;
-  }
-
-  return false;
-}
-
-template <class T>
-SharedPtr<T>::operator bool() {
-  if (ptr != nullptr) {
-    return true;
-  }
-
-  return false;
-}
-
-template <class T>
-bool SharedPtr<T>::operator<(SharedPtr<T>& shared_ptr) {
-  if (ptr < shared_ptr.get()) {
-    return true;
-  }
-
-  return false;
-}
-
-template <class T>
-T& SharedPtr<T>::operator*() {
-  return *ptr;
-}
-
-template <class T>
-T* SharedPtr<T>::operator->() {
-  return ptr;
-}
-
-template <class T>
-void SharedPtr<T>::common_init() {
-  set_ptr(nullptr);
-  use_count = new int(0);
-}
-
-template <class T>
-void SharedPtr<T>::free() {
   if (get_use_count() == 1) {
     delete use_count;
     delete ptr;
@@ -136,25 +64,90 @@ void SharedPtr<T>::free() {
   }
 }
 
+// Reassignment operator
 template <class T>
-T* SharedPtr<T>::get() {
-  return ptr;
+void SharedPtr<T>::operator=(SharedPtr<T>& shared_ptr) {
+  set_ptr(shared_ptr.get());
+  delete use_count;
+  use_count = shared_ptr.use_count;
+  set_use_count(get_use_count() + 1);
 }
 
+// Comparison operator for regular pointer
 template <class T>
-int SharedPtr<T>::get_use_count() {
-  return *use_count;
-}
-
-template <class T>
-bool SharedPtr<T>::has_ptr() {
-  if (ptr) {
+bool SharedPtr<T>::operator==(T* cmpPtr) {
+  if (ptr == cmpPtr) {
     return true;
   }
 
   return false;
 }
 
+// Comparison operator for SharedPtr
+template <class T>
+bool SharedPtr<T>::operator==(SharedPtr<T>& shared_ptr) {
+  if (ptr == shared_ptr.get()) {
+    return true;
+  }
+
+  return false;
+}
+
+// Comparison operator, is less, for regular pointer
+template <class T>
+bool SharedPtr<T>::operator<(T* cmpPtr) {
+  if (ptr < cmpPtr) {
+    return true;
+  }
+
+  return false;
+}
+
+// Comparison operator, is less, for SharedPtr
+template <class T>
+bool SharedPtr<T>::operator<(SharedPtr<T>& shared_ptr) {
+  if (ptr < shared_ptr.get()) {
+    return true;
+  }
+
+  return false;
+}
+
+// Boolean operator. Used in e.g. if statements or asserts
+template <class T>
+SharedPtr<T>::operator bool() {
+  if (ptr != nullptr) {
+    return true;
+  }
+
+  return false;
+}
+
+// Get the dereferenced value of the pointer
+template <class T>
+T& SharedPtr<T>::operator*() {
+  return *ptr;
+}
+
+// Get the pointer
+template <class T>
+T* SharedPtr<T>::operator->() {
+  return ptr;
+}
+
+// Get the pointer
+template <class T>
+T* SharedPtr<T>::get() {
+  return ptr;
+}
+
+// Get the use count
+template <class T>
+int SharedPtr<T>::get_use_count() {
+  return *use_count;
+}
+
+// Reset the current pointer and replace it with a new pointer
 template <class T>
 void SharedPtr<T>::reset(T* newPtr) {
   delete use_count;
@@ -163,16 +156,19 @@ void SharedPtr<T>::reset(T* newPtr) {
   set_ptr(newPtr);
 }
 
+// Set pointer
 template <class T>
 void SharedPtr<T>::set_ptr(T* ptr) {
   this->ptr = ptr;
 }
 
+// Set the current use count
 template <class T>
 void SharedPtr<T>::set_use_count(int count) {
   *use_count = count;
 }
 
+// Check if this SharedPtr is the only SharedPtr pointing at the object
 template <class T>
 bool SharedPtr<T>::unique() {
   if (get_use_count() == 1) {
